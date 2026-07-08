@@ -38,7 +38,7 @@ Your master CV — the most complete, unedited version of your professional reco
 
 **Naming:** Any filename works. If multiple files are present, `/setup` reads all of them and cross-references for consistency.
 
-**Tip:** Keep your most comprehensive CV here (not a tailored variant). The skill files are the canonical source — tailored CVs are generated per application by `/apply`.
+**Tip:** Keep your most comprehensive CV here (not a tailored variant). The skill files are the canonical source — tailored CVs are generated per application by `/apply`. Run `/ats-check <cv-path> <posting-url>` on any PDF or `.tex` here to verify ATS parseability and keyword match before applying (report saved to `ats-check/`).
 
 ---
 

@@ -385,6 +385,7 @@ Present a summary:
 >
 > **Try it out:**
 > - Run `/scrape` to search for matching jobs right now
+> - Run `/ats-check <cv-path> <posting-url>` to ATS-check an existing CV against a job (report in `ats-check/`)
 > - Run `/apply` with a job posting URL to see the full application workflow
 > - Run `/setup --section search` later to update your search queries as your priorities evolve
 
@@ -403,4 +404,4 @@ If Path A left any STAR stubs in `07-interview-prep.md`, also note:
 - Synthesize answers into structured formats (the user does not need to know markdown or LaTeX).
 - Can be re-run with `--section <name>` to update specific sections (e.g., `/setup --section search` to reconfigure job search queries without re-doing the full profile).
 - Section 9 (search) in Path C, and the equivalent follow-up questions in Path A, proactively suggest role types the user may not have considered.
-- At the end, suggest running `/scrape` and `/apply` with a test job posting.
+- At the end, suggest running `/scrape`, optionally `/ats-check` on an existing CV + posting URL, and `/apply` with a test job posting.

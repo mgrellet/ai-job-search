@@ -1,7 +1,5 @@
 # Job Evaluation Framework
 
-<!-- SETUP: Skill match areas and career goals are personalized by running /setup -->
-
 ## Scoring Dimensions
 
 Evaluate each job posting against these five dimensions:
@@ -16,9 +14,9 @@ How well do the required/preferred skills align with the candidate's capabilitie
 | 40-59 | Partial match, significant upskilling needed |
 | 0-39 | Fundamental mismatch |
 
-**Strong match areas:** [YOUR_PRIMARY_SKILLS]
-**Moderate match areas:** [YOUR_SECONDARY_SKILLS]
-**Weak match areas:** [SKILLS_YOU_LACK]
+**Strong match areas:** Java, Spring Boot, microservices, REST APIs, Node.js/NestJS, Go, MySQL/PostgreSQL, Kafka/RabbitMQ, CI/CD (Jenkins, Azure DevOps), Docker, React, performance optimization, distributed systems, observability (Datadog, New Relic), stress testing (Artillery)
+**Moderate match areas:** Cloud platforms (AWS/GCP — limited explicit CV evidence), Kubernetes, modern frontend beyond React basics, Python, .NET
+**Weak match areas:** Mobile development, data science/ML, embedded systems, PHP (legacy only, early career)
 
 ### 2. Experience Match (0-100)
 Does work history align with what they're looking for?
@@ -30,9 +28,9 @@ Does work history align with what they're looking for?
 | 40-59 | Adjacent experience, would need to make the case |
 | 0-39 | Unrelated experience |
 
-**Strong:** [YOUR_DIRECT_EXPERIENCE_DOMAINS]
-**Moderate:** [YOUR_ADJACENT_EXPERIENCE]
-**Entry-level:** [ROLES_WITH_LIMITED_EXPERIENCE]
+**Strong:** Backend/full-stack engineering, tax/compliance SaaS, fintech/payments, microservices migrations, tech lead roles, regulated banking environments
+**Moderate:** Logistics/traceability (current Siltium role), enterprise consulting (Globant), application support (early HP role)
+**Entry-level:** Roles requiring specific cloud certifications or niche stacks not yet demonstrated
 
 ### 3. Behavioral/Culture Fit (0-100)
 Does the role and company culture match the behavioral profile?
@@ -47,11 +45,12 @@ Does the role and company culture match the behavioral profile?
 **Red flags to research:** Department disorganization, work dominated by maintenance over development, poor chemistry with leadership, culture mismatches. Check reviews, media coverage, LinkedIn connections, and network contacts for insider perspective.
 
 ### 4. Location & Logistics (Pass/Fail + Notes)
-- Within commute range: PASS
-- Remote with occasional office: PASS
-- Requires relocation: FAIL (deal-breaker)
+- Remote within Argentina: PASS
+- Hybrid or on-site in Tucumán / Yerba Buena: PASS
+- Remote LATAM/global (Argentina-based contract): PASS
+- Requires relocation outside Argentina: FAIL
+- On-site only outside Tucumán (e.g. Buenos Aires, Córdoba): FAIL
 - Frequent international travel: FLAG (discuss with user)
-
 ### 5. Career Alignment & Motivation (0-100)
 Does this role advance career goals and contain tasks that energize?
 
@@ -63,19 +62,20 @@ Does this role advance career goals and contain tasks that energize?
 | 0-39 | Dead end or backwards step |
 
 **Career goals:**
-- [YOUR_CAREER_GOAL_1]
-- [YOUR_CAREER_GOAL_2]
-- [YOUR_CAREER_GOAL_3]
+- **Primary target:** Senior Backend Engineer (hands-on IC, backend depth) — confirmed
+- Prefer high-scale distributed systems in **fintech / payments** first; compliance and regulated banking as secondary
+- Location: only Tucumán (on-site/híbrido) or remote — no relocation
 
 **Motivation filter:** Evaluate not just whether you *can* do the tasks, but whether the tasks will *energize* you. Consider:
-- Tasks that energize: [YOUR_ENERGIZING_TASKS]
-- Tasks that drain: [YOUR_DRAINING_TASKS]
+- Tasks that energize: Architecture and migrations, performance optimization, mentoring engineers, building systems with measurable throughput/reliability impact
+- Tasks that drain: Pure ticket-queue maintenance with no improvement mandate, roles with no technical influence, excessive bureaucracy without engineering autonomy
 - Non-task factors: leadership style, department culture, company values, degree of autonomy
 
 **Life situation alignment:** Consider personal constraints:
-- **Security**: [YOUR_FINANCIAL_SITUATION_CONTEXT]
-- **Flexibility**: [YOUR_SCHEDULE_CONSTRAINTS]
-- **Professional development**: [YOUR_GROWTH_PRIORITIES]
+- **Security:** Currently employed — prioritize quality of move over urgency; no minimum salary specified
+- **Flexibility:** Solo Tucumán (on-site/híbrido / Yerba Buena) o remoto (Argentina / contrato desde Argentina)
+- **Professional development:** Senior Backend Engineer track (not actively targeting Engineering Manager)
+- **Deal-breakers:** Relocalización a otra ciudad o fuera de Argentina = FAIL; roles that require mandatory multi-city/on-site outside Tucumán = FAIL
 
 ### 6. Salary Benchmark (Optional)
 

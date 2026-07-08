@@ -54,13 +54,13 @@ The CV compiles with `lualatex` (pdflatex often fails on modern MiKTeX installs 
 
 ### Optional: pdftotext (for the ATS check)
 
-`/apply` runs an ATS parseability check on the compiled CV: it extracts the PDF's text layer and verifies contact details, reading order, and keyword coverage the way an applicant-tracking system sees them. This uses `pdftotext` from [poppler](https://poppler.freedesktop.org/), which is not part of TeX distributions:
+`/apply` and `/ats-check` extract the compiled CV's PDF text layer and verify contact details, reading order, and keyword coverage the way an applicant-tracking system sees them. This uses `pdftotext` from [poppler](https://poppler.freedesktop.org/), which is not part of TeX distributions:
 
 - **macOS:** `brew install poppler`
 - **Debian/Ubuntu:** `sudo apt install poppler-utils`
 - **Windows:** `choco install poppler`
 
-If `pdftotext` is missing, `/apply` skips the mechanical check with a warning and falls back to a visual keyword review — everything else works normally.
+If `pdftotext` is missing, `/apply` and `/ats-check` skip the mechanical check with a warning and fall back to a visual keyword review — everything else works normally.
 
 ## 2. Fork and clone
 
@@ -158,7 +158,13 @@ This creates `salary_data.json` which the `/apply` workflow uses for salary benc
 
 ## 6. Test the workflow
 
-Find a job posting you're interested in, then:
+Find a job posting you're interested in. Optionally check an existing CV against it first:
+
+```
+/ats-check documents/cv/my_cv.pdf https://www.linkedin.com/jobs/view/1234567890
+```
+
+Review the report in `ats-check/` — fix parseability or keyword gaps in your `.tex`, recompile, and re-run if needed. Then apply:
 
 ```
 /apply https://jobindex.dk/job/1234567
@@ -175,7 +181,7 @@ Claude will:
 2. Ask if you want to proceed
 3. Draft a tailored CV and cover letter
 4. Have a reviewer agent critique the drafts
-5. Revise and present the final output
+5. Revise, compile PDFs, ATS-check the CV, and present the final output
 
 ## 7. Compile your documents
 

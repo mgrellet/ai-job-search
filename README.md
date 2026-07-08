@@ -19,20 +19,31 @@ An AI-powered job application framework built on [Claude Code](https://claude.co
 A structured workflow that turns Claude Code into a full-stack job application assistant. The core workflow (self-profiling, fit evaluation, and the drafter-reviewer application pipeline) is **language- and country-agnostic**. The job portal search skills are built for the Danish market (Jobindex, Jobnet, Akademikernes Jobbank, etc.), but the pattern is designed to be swapped for your local job boards.
 
 ```
-/setup          /scrape              /apply <url>
+/setup          /scrape              /rank (optional)
   |                |                     |
   v                v                     v
-Fill in        Search job           Evaluate fit
-your profile   portals              Score & recommend
+Fill in        Search job           Batch-score new
+your profile   portals              postings → shortlist
   |                |                     |
   v                v                     v
-Profile        Present matches      Draft CV + Cover Letter
-files ready    with fit ratings     (LaTeX, tailored)
-                   |                     |
-                   v                     v
-               Pick a match         Reviewer agent critiques
-               -> /apply            -> Revise -> Final output
+Profile        Pick a match         Pick from shortlist
+files ready         |                     |
+                    +--------> /ats-check <cv> <url>  (optional)
+                    |              |
+                    |              v
+                    |         ATS report → fix CV keywords
+                    |              |
+                    v              v
+               /apply <url>  ←----+
+                    |
+                    v
+         Evaluate fit → Draft CV + cover letter
+                    |
+                    v
+         Reviewer → Revise → Compile PDFs → Final output
 ```
+
+`/ats-check` is optional but recommended **before** `/apply` when you already have a CV PDF (e.g. in `documents/cv/`) and want to see parseability + keyword match against a specific posting without drafting a full application.
 
 The framework encodes career guidance best practices, including structured evaluation criteria, forward-looking cover letter framing, and optional salary benchmarking.
 
@@ -42,7 +53,7 @@ The framework encodes career guidance best practices, including structured evalu
 - Python 3.10+
 - [Bun](https://bun.sh) (for Danish job search CLI tools)
 - LaTeX distribution with `lualatex` and `xelatex`: [TeX Live](https://tug.org/texlive/) or [MiKTeX](https://miktex.org/). The CV compiles with `lualatex` (pdflatex often fails on modern MiKTeX installs with `fontawesome5` font-expansion errors); the cover letter compiles with `xelatex` because `cover.cls` requires `fontspec`.
-- Optional: `pdftotext` from [poppler](https://poppler.freedesktop.org/) (macOS: `brew install poppler`, Debian/Ubuntu: `apt install poppler-utils`, Windows: `choco install poppler`) — used by `/apply`'s ATS parseability check on the compiled CV. If missing, the check degrades gracefully to a visual keyword review.
+- Optional: `pdftotext` from [poppler](https://poppler.freedesktop.org/) (macOS: `brew install poppler`, Debian/Ubuntu: `apt install poppler-utils`, Windows: `choco install poppler`) — used by `/apply` and `/ats-check` for ATS parseability checks on compiled CVs. If missing, the check degrades gracefully to a visual keyword review.
 
 ## Quick start
 
@@ -83,7 +94,27 @@ claude
 
 This searches multiple job portals for positions matching your profile, deduplicates results, and presents them sorted by fit. Pick a match to run `/apply` on it directly — or, when a scrape returns more jobs than you want to eyeball, run `/rank` to batch-score them all against the fit framework and get a ranked shortlist first.
 
-### 5. Apply to a job
+### 5. (Optional) ATS-check your CV against a posting
+
+If you already have a CV (PDF or `.tex` in `documents/cv/` or `cv/`), verify what an ATS parser would read and how well it matches a job **before** running the full application workflow:
+
+```bash
+/ats-check documents/cv/my_cv.pdf https://www.linkedin.com/jobs/view/1234567890
+/ats-check cv/main_company.tex https://jobs.lever.co/company/role-id
+```
+
+Claude will:
+
+1. Fetch the job posting (LinkedIn via `linkedin-search` CLI, other URLs via WebFetch)
+2. Extract the PDF text layer with `pdftotext` (parseability: contact details, ligatures, reading order)
+3. Score required/preferred keywords from the posting against the **CV text** (not just your profile)
+4. Save a markdown report to `ats-check/report-YYYY-MM-DD-<company>-<role>.md` with status and concrete improvements
+
+Re-run after editing the `.tex` and recompiling. When keyword coverage looks good, proceed with `/apply`.
+
+See [How `/ats-check` works](#how-atscheck-works) below.
+
+### 6. Apply to a job
 
 ```bash
 /apply https://jobindex.dk/job/1234567
@@ -99,13 +130,20 @@ This runs the full workflow: evaluate fit, draft CV + cover letter, review with 
 
 ## Other commands
 
-`/setup`, `/scrape`, and `/apply` form the core workflow. Five more commands extend it once your profile is in place:
+`/setup`, `/scrape`, and `/apply` form the core workflow. Six more commands extend it once your profile is in place:
 
 - **`/rank`** bridges `/scrape` and `/apply`: it batch-scores all newly scraped postings against the fit framework (parallel agents fetch each posting and score the five evaluation dimensions) and returns a ranked shortlist with honest per-job strengths and gaps. Deal-breakers veto, deadlines get urgency flags, dead postings get marked expired. Pick a number and it hands off to the full `/apply` workflow.
+- **`/ats-check`** analyzes an existing CV against a job posting URL — without drafting a new application. Takes two arguments: CV path (`.pdf` or `.tex`) and posting URL (LinkedIn or any careers page). Extracts the PDF text layer with `pdftotext`, checks ATS parseability (contact details, reading order, garbled glyphs), scores keyword coverage against the posting, and saves a markdown report to `ats-check/` with what to improve. Reuses the `linkedin-search` CLI for LinkedIn URLs and the same framework as `/apply` Step 5d.
 - **`/expand`** enriches your profile by scanning public sources you've already linked in it (GitHub repos, portfolio site, Kaggle, Google Scholar) and looking up syllabi for named courses and certifications. Discovered competencies are added to your profile with a source tag. Useful right after `/setup` to surface skills that documents alone don't make explicit.
 - **`/upskill`** analyzes the gap between your profile and your tracked job postings (or a single posting via `/upskill <URL>`). Produces a prioritized heatmap of skill gaps and a learning plan with web-searched study resources and time estimates. Useful for career planning between applications.
 - **`/add-template`** registers your own LaTeX CV or cover letter template in place of the stock ones. It captures the template's instructions (compile engine, fonts, style rules, page limit), runs a mandatory test compile, and wires the template into `/apply`. See [LaTeX templates](#latex-templates) below.
 - **`/add-portal`** generates a job-portal search skill for a job board in your market. It investigates the portal (search URL pattern, result structure, access rules), scaffolds the CLI skill from the same structure as the shipped ones, and test-runs a live query before registering. See [Job search tools](#job-search-tools) below.
+
+Example — check an existing CV before applying:
+
+```
+/ats-check documents/cv/cv_pomelo_spanish.pdf https://www.linkedin.com/jobs/view/1234567890
+```
 
 `/reset` is also available, see [Starting over](#starting-over) below.
 
@@ -117,6 +155,7 @@ ai-job-search/
 ├── .claude/
 │   ├── commands/
 │   │   ├── apply.md                   # /apply workflow (drafter-reviewer)
+│   │   ├── ats-check.md               # /ats-check CV vs posting ATS analysis
 │   │   ├── setup.md                   # /setup onboarding (documents folder, CV import, or interview)
 │   │   ├── expand.md                  # /expand competency enrichment from documents and online presence
 │   │   ├── add-template.md            # /add-template register custom LaTeX templates
@@ -132,7 +171,10 @@ ai-job-search/
 │   │   │   ├── 04-job-evaluation.md   # Scoring framework for job fit
 │   │   │   ├── 05-cv-templates.md     # LaTeX CV structure + tailoring rules
 │   │   │   ├── 06-cover-letter-templates.md # LaTeX cover letter templates
-│   │   │   └── 07-interview-prep.md   # STAR examples + interview framework
+│   │   │   ├── 06-cover-letter-templates.md # LaTeX cover letter templates
+│   │   │   ├── 07-interview-prep.md   # STAR examples + interview framework
+│   │   │   └── 08-ats-verification.md # ATS parseability + keyword coverage
+│   │   ├── ats-check/                 # /ats-check standalone ATS analysis
 │   │   ├── job-scraper/               # Job search orchestration
 │   │   └── upskill/                   # /upskill skill gap analysis and learning plan
 │   └── settings.json                  # Claude Code permissions (shared, scoped)
@@ -162,6 +204,7 @@ ai-job-search/
 │   └── README_SALARY_TOOL.md          # Salary tool setup instructions
 ├── job_scraper/                       # Scraper state (seen jobs, results)
 ├── upskill/                           # /upskill report output (markdown reports per run)
+├── ats-check/                         # /ats-check report output (markdown reports per run)
 ├── job_search_tracker.csv             # Application tracking spreadsheet
 └── SETUP.md                           # Detailed setup guide
 ```
@@ -188,6 +231,34 @@ All claims in the CV and cover letter are verified against your actual profile. 
 - **Relevance-weighted CV cutting.** When a CV overflows 2 pages, the workflow does not cut mechanically from the "oldest" section. It scores each candidate line by (a) relevance to the target posting, (b) uniqueness in the document, and (c) whether the cover letter depends on it, and cuts the lowest-total-score line first. An older-role bullet that hits posting keywords survives ahead of a recent-role bullet that does not.
 - **Drafter-reviewer separation.** The drafter writes; a second Claude agent, spawned with a fresh context, researches the company and critiques the drafts. The drafter then revises. This catches missed keywords, weak framing, and generic language that a single pass often leaves in.
 - **Token-efficient reviewer dispatch.** The reviewer agent receives drafts inline rather than re-reading them, and the verification checklist runs once at the end of the workflow rather than being duplicated by both agents. Note: the new compile-and-inspect step in Step 5 spends some of those savings on PDF rendering and layout iteration — the workflow trades some end-to-end token cost for a real reduction in broken PDFs reaching the user.
+
+## How `/ats-check` works
+
+Standalone ATS analysis for an **existing** CV — no CV/cover letter drafting, no reviewer agent. Use it to decide whether a CV is ready to submit or what keywords to add before `/apply`.
+
+**Invocation** (two required arguments):
+
+```
+/ats-check <cv-path> <posting-url>
+```
+
+| Argument | Accepted values |
+|----------|-----------------|
+| `<cv-path>` | `.pdf` (used as-is) or `.tex` (compiled first with `lualatex` or `pdflatex` per template) |
+| `<posting-url>` | LinkedIn job URL, Greenhouse/Lever/Ashby link, or any careers page Claude can fetch |
+
+**Steps:**
+
+1. **Prepare PDF** — use the PDF directly, or compile `.tex` first
+2. **Fetch posting** — LinkedIn jobs via `.agents/skills/linkedin-search` `detail`; other sites via WebFetch
+3. **Extract text layer** — `pdftotext -layout` on the CV PDF (graceful fallback if poppler is not installed)
+4. **Parseability checks** — email/phone as literal text, no garbled ligatures (`offline` → `o ine`), sane reading order, dates present
+5. **Keyword coverage** — match posting required/preferred terms against extracted CV text; cross-check profile only to distinguish “missing but you have it” vs genuine gaps (never suggest stuffing)
+6. **Write report** — `ats-check/report-YYYY-MM-DD-<company>-<role>.md` with summary scores, keyword table, and “What to Improve”
+
+**Relationship to `/apply`:** `/apply` runs the same ATS framework automatically on Step 5d of every new application. `/ats-check` is for ad-hoc runs on any CV variant (master CV, manually tailored Spanish CV, pre-submit sanity check). Framework reference: `.claude/skills/job-application-assistant/08-ats-verification.md`.
+
+**Custom LaTeX CVs:** if `pdftotext` breaks words with `fl`/`fi`/`ff` ligatures, add `lmodern` + `microtype` `\DisableLigatures` to the preamble — documented in `08-ats-verification.md`.
 
 ## Customization
 

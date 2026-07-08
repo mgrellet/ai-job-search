@@ -105,12 +105,17 @@ Write 5-7 lines that function as an "elevator pitch": a concise, compelling intr
 
 **Create 2-3 profile statement templates for your main role types:**
 
-<!-- SETUP: These are populated based on your background -->
-**For [YOUR_PRIMARY_ROLE_TYPE] roles:**
-> [YOUR_PROFILE_STATEMENT_TEMPLATE_1]
+**For Senior Backend Engineer roles (primary target):**
+> Senior Backend Engineer with 13+ years building scalable, high-performance distributed systems in Java (Spring Boot), Node.js (NestJS), and Go. Deep expertise in microservices, REST APIs, and performance optimization with measurable impact (35–70% improvements, API latency 1s→100ms). Background in fintech (MercadoPago), tax compliance (Sovos), and regulated banking (JP Morgan Chase). Strong CI/CD, observability, and production reliability focus.
 
-**For [YOUR_SECONDARY_ROLE_TYPE] roles:**
-> [YOUR_PROFILE_STATEMENT_TEMPLATE_2]
+**For Tech Lead roles (adjacent — not primary target):**
+> Engineering leader with 5+ years as Tech Lead, mentoring teams of 4–6 engineers while remaining hands-on in Java/Spring Boot microservices. Combines architectural decision-making with delivery predictability in regulated, high-volume environments. Led monolith-to-microservices migrations, established CI/CD standards, and drove PoCs (Kafka/Snowflake) with quantified throughput gains.
+
+**For Full Stack / Platform Engineer roles:**
+> Full Stack Software Engineer experienced in backend microservices (Java/Spring Boot, Go, NestJS) and modern frontends (React). Led end-to-end architectural migrations from legacy monoliths to microservices and microfrontends. Deep expertise in MySQL optimization, message queues (Kafka, RabbitMQ), and CI/CD pipelines across enterprise and fintech contexts.
+
+**Backend-focused variant** *[Used for: Martin_Grellet.pdf]*:
+> Backend Engineer with 13+ years building distributed systems and APIs in Java (Spring Boot) and Node.js (NestJS/TypeScript). Worked across fintech, tax compliance, e-commerce, and logistics — in high-throughput, production-critical environments. Designed and built microservices and event-driven pipelines at scale, led backend technical decisions, and mentored engineering teams.
 
 ### Core Competencies / Skills Section (Best Practice)
 Reorder and emphasize based on the role. Use bold category labels.
@@ -176,20 +181,17 @@ Restore the highest-relevance item that was previously cut — a CV that ends mi
 
 ## ATS Parseability
 
-Most employers run CVs through an ATS before a human sees them, and the ATS reads the PDF's embedded **text layer**, not the rendered page. A CV can pass visual inspection and still extract as garbage. After the layout passes the compile-and-inspect loop, verify the text layer:
+Most employers run CVs through an ATS before a human sees them. After the layout passes the compile-and-inspect loop, verify the text layer per **`08-ats-verification.md`** (same checks as `/apply` Step 5d and standalone `/ats-check`).
 
-```bash
-cd cv && pdftotext -layout main_<company>.pdf main_<company>.txt
+For a CV + posting URL without running the full application workflow, use:
+
+```
+/ats-check <cv-path> <posting-url>
 ```
 
-`pdftotext` comes from [poppler](https://poppler.freedesktop.org/), not the TeX distribution - it is an **optional** dependency. If it is not installed, skip the mechanical check with a warning and rely on the visual PDF read for keyword coverage.
+Reports save to `ats-check/report-YYYY-MM-DD-<company>-<role>.md`.
 
-What to check in the extraction:
-
-- **Contact details as literal text.** The stock template's fontawesome contact icons extract as glyph names (`MOBILE-ALT`, `Envelope`) - harmless noise, because the actual address and number are printed beside them. The failure mode is a contact detail carried *only* by an icon or a hyperlink (like the `LinkedIn` link text, whose URL is not in the text layer): invisible to an ATS. The email address must always appear as printed text.
-- **No garbled output.** `(cid:NNN)` markers or `�` characters mean a font is embedded without a Unicode mapping - an ATS sees the same garbage. This shows up with unusual fonts in custom templates, not with the stock moderncv setup under lualatex.
-- **Reading order.** The stock banking style is single-column, so extraction order matches visual order. Custom templates (via `/add-template`) with sidebars or multi-column layouts can interleave unrelated lines; if extraction order is scrambled, the user is trading ATS compatibility for looks and should be told.
-- **Keyword coverage.** Match the posting's required/preferred terms against the extracted text, in the posting's language. Prefer the posting's exact term over a synonym when it is truthfully applicable - ATS matching is often literal. Never add a keyword the profile does not support.
+**Custom `article` CVs (pdfLaTeX):** if `pdftotext` breaks `fl`/`fi`/`ff` words (`offline`, `Snowflake`, `Certified`), add `lmodern` + `microtype` `\DisableLigatures` to the preamble — see `08-ats-verification.md` → "LaTeX ligature corruption".
 
 ## Page Budget - Hard 2-Page Limit
 

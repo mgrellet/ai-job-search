@@ -55,6 +55,7 @@ When the user provides a job posting (URL or text), follow this workflow:
 | `05-cv-templates.md` | LaTeX CV structure and tailoring rules |
 | `06-cover-letter-templates.md` | LaTeX cover letter structure and tailoring rules |
 | `07-interview-prep.md` | STAR examples, tough questions, roleplay guidelines |
+| `08-ats-verification.md` | ATS parseability and keyword coverage (shared with `/ats-check`) |
 
 ---
 
@@ -66,3 +67,4 @@ The user may also ask for individual steps without the full workflow:
 - "Write a cover letter for [role] at [company]" - Step 3 only
 - "Help me prepare for an interview at [company]" - Step 4 only
 - "What jobs should I look for?" - Career strategy discussion using profile + evaluation framework
+- "Check my CV against this job posting" / ATS analysis - use the **`ats-check`** skill (`/ats-check <cv> <url>`)
